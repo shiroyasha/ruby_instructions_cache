@@ -32,7 +32,7 @@ ric_load_iseq(VALUE self, VALUE path) {
 
   sprintf(cache_path, ".ruby_binaries/f_%d", file_no);
 
-  printf("Saving cache of %s to %s\n", RSTRING_PTR(path), cache_path);
+  printf("[RIC] Compiling of %s \n", RSTRING_PTR(path));
 
   ric_save_to_file(cache_path, binary);
 
