@@ -18,13 +18,23 @@ void Init_ruby_instructions_cache(void) {
 
 static VALUE
 ric_load_iseq(VALUE self, VALUE path) {
+  static int file_no = 0;
+  char cache_path[255];
+
   VALUE mRubyVM = rb_const_get(rb_cObject, rb_intern("RubyVM"));
   VALUE mIseq   = rb_const_get(mRubyVM, rb_intern("InstructionSequence"));
   VALUE iseq    = rb_funcall(mIseq, rb_intern("compile_file"), 1, path);
 
   VALUE binary = rb_funcall(iseq, rb_intern("to_binary"), 0);
 
-  ric_save_to_file(".ruby_binaries/a", binary);
+  file_no++;
+
+
+  sprintf(cache_path, ".ruby_binaries/f_%d", file_no);
+
+  printf("Saving cache of %s to %s\n", RSTRING_PTR(path), cache_path);
+
+  ric_save_to_file(cache_path, binary);
 
   return iseq;
 }
