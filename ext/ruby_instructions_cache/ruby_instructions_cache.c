@@ -7,7 +7,8 @@
 static VALUE mRIC;
 
 /* forward declarations */
-static VALUE ric_load_iseq(VALUE);
+static VALUE ric_load_iseq(VALUE, VALUE);
+static int ric_save_to_file(const char*, VALUE);
 
 void Init_ruby_instructions_cache(void) {
   mRIC = rb_define_module("RubyInstructionsCache");
@@ -15,8 +16,29 @@ void Init_ruby_instructions_cache(void) {
   rb_define_module_function(mRIC, "load_iseq", ric_load_iseq, 1);
 }
 
-VALUE ric_load_iseq(VALUE path) {
-  printf("Hello World\n");
+static VALUE
+ric_load_iseq(VALUE self, VALUE path) {
+  VALUE mRubyVM = rb_const_get(rb_cObject, rb_intern("RubyVM"));
+  VALUE mIseq   = rb_const_get(mRubyVM, rb_intern("InstructionSequence"));
+  VALUE iseq    = rb_funcall(mIseq, rb_intern("compile_file"), 1, path);
 
-  return Qnil;
+  VALUE binary = rb_funcall(iseq, rb_intern("to_binary"), 0);
+
+  ric_save_to_file(".ruby_binaries/a", binary);
+
+  return iseq;
+}
+
+static int
+ric_save_to_file(const char* path, VALUE ruby_binary) {
+  FILE *fd = fopen(path, "wb"); /* wb - write binary */
+
+  const char* data = RSTRING_PTR(ruby_binary);
+  int len          = RSTRING_LEN(ruby_binary);
+
+  fwrite(data, len, 1, fd);
+  fclose(fd);
+
+  /* TODO: handle errors */
+  return 0;
 }

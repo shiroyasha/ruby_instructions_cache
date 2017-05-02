@@ -1,11 +1,18 @@
-require 'spec_helper'
+require "spec_helper"
 
 describe RubyInstructionsCache do
-  it 'has a version number' do
-    expect(RubyInstructionsCache::VERSION).not_to be nil
+  it "has a version number" do
+    expect(RubyInstructionsCache::VERSION).not_to be_nil
   end
 
-  it 'does something useful' do
-    expect(false).to eq(true)
+  before(:all) do
+    RubyInstructionsCache.setup!
+  end
+
+  it "does not break file loading" do
+    load "./spec/a.rb"
+
+    a = Animal.new("Tiger")
+    puts a.speak
   end
 end
