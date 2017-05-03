@@ -25,6 +25,7 @@ ric_load_iseq(VALUE self, VALUE path) {
   char cache_path[255];
 
   VALUE iseq    = NULL;
+  VALUE binary  = NULL;
   VALUE mRubyVM = rb_const_get(rb_cObject, rb_intern("RubyVM"));
   VALUE mIseq   = rb_const_get(mRubyVM, rb_intern("InstructionSequence"));
 
@@ -35,12 +36,13 @@ ric_load_iseq(VALUE self, VALUE path) {
   if(access(cache_path, R_OK) == 0) {
     /* printf("[RIC] Loading %s from cache.\n", RSTRING_PTR(path)); */
 
-    iseq = ric_load_from_file(cache_path);
+    binary = ric_load_from_file(cache_path);
+    iseq = rb_funcall(mIseq, rb_intern("load_from_binary"), 1, binary);
   } else {
     /* printf("[RIC] Compiling %s -> %s.\n", RSTRING_PTR(path), cache_path); */
 
     iseq = rb_funcall(mIseq, rb_intern("compile_file"), 1, path);
-    VALUE binary = rb_funcall(iseq, rb_intern("to_binary"), 0);
+    binary = rb_funcall(iseq, rb_intern("to_binary"), 0);
 
     ric_save_to_file(cache_path, binary);
   }
@@ -78,9 +80,9 @@ ric_load_from_file(const char* path) {
   fread(file_contents, sizeof(char), input_file_size, fd);
   fclose(fd);
 
-  ret = rb_str_new_cstr(file_contents);
+  ret = rb_str_new_static(file_contents, input_file_size);
 
-  free(file_contents);
+  /* free(file_contents); */
   return ret;
 }
 
