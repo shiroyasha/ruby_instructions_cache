@@ -33,11 +33,11 @@ ric_load_iseq(VALUE self, VALUE path) {
   sprintf(cache_path, ".ruby_binaries/%s", cache_key);
 
   if(access(cache_path, R_OK) == 0) {
-    printf("[RIC] Loading %s from cache.\n", RSTRING_PTR(path));
+    /* printf("[RIC] Loading %s from cache.\n", RSTRING_PTR(path)); */
 
     iseq = ric_load_from_file(cache_path);
   } else {
-    printf("[RIC] Compiling %s -> %s.\n", RSTRING_PTR(path), cache_path);
+    /* printf("[RIC] Compiling %s -> %s.\n", RSTRING_PTR(path), cache_path); */
 
     iseq = rb_funcall(mIseq, rb_intern("compile_file"), 1, path);
     VALUE binary = rb_funcall(iseq, rb_intern("to_binary"), 0);
